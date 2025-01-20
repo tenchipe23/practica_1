@@ -1,0 +1,152 @@
+.empty-orders-container,
+.no-results-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  text-align: center;
+  padding: 20px;
+
+  ion-icon {
+    font-size: 100px;
+    color: var(--ion-color-medium);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
+    color: var(--ion-color-dark);
+  }
+
+  p {
+    margin: 0 0 20px;
+    color: var(--ion-color-medium);
+  }
+}
+
+.filter-chip {
+  padding: 10px;
+  background: #f4f4f4;
+  display: flex;
+  justify-content: center;
+
+  ion-chip {
+    margin: 0;
+  }
+}
+
+.orders-list {
+  padding: 15px;
+}
+
+.order-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #f4f4f4;
+
+  .order-id {
+    font-weight: bold;
+    color: var(--ion-color-dark);
+  }
+
+  .order-status {
+    font-size: 14px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    
+    &.pending {
+      background: #FFC107;
+      color: white;
+    }
+
+    &.processing {
+      background: #2196F3;
+      color: white;
+    }
+
+    &.shipped {
+      background: #9C27B0;
+      color: white;
+    }
+
+    &.delivered {
+      background: #4CAF50;
+      color: white;
+    }
+
+    &.cancelled {
+      background: #F44336;
+      color: white;
+    }
+  }
+}
+
+.order-items {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e0e0e0;
+
+  .order-item {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    min-width: 200px;
+
+    img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-right: 10px;
+    }
+
+    .item-details {
+      h3 {
+        margin: 0 0 5px;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      p {
+        margin: 0;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+
+  .order-date {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+
+  .order-total {
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+}

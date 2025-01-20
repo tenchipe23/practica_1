@@ -1,0 +1,89 @@
+.register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+
+  .logo {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+  }
+}
+
+.password-strength-container {
+  margin-bottom: 20px;
+}
+
+.password-strength-bar {
+  width: 100%;
+  height: 5px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.strength-indicator {
+  height: 100%;
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+.strength-indicator.weak {
+  background-color: red;
+  width: 33%;
+}
+
+.strength-indicator.medium {
+  background-color: orange;
+  width: 66%;
+}
+
+.strength-indicator.strong {
+  background-color: green;
+  width: 100%;
+}
+
+.password-strength-text {
+  font-size: 12px;
+  text-align: center;
+}
+
+.password-strength-text span {
+  font-weight: bold;
+}
+
+.password-strength-text .weak { color: red; }
+.password-strength-text .medium { color: orange; }
+.password-strength-text .strong { color: green; }
+
+ion-item {
+  --background: transparent;
+  --border-color: var(--input-border-color);
+  --border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.invalid {
+  border-bottom: 2px solid red;
+}
+
+ion-button.full-width-button {
+  margin-top: 20px;
+}
+
+.ion-margin-top {
+  margin-top: 20px;
+}
+
+.ion-margin-bottom {
+  margin-bottom: 20px;
+}

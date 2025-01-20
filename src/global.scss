@@ -35,3 +35,120 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+/* Import Roboto Font */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+:root {
+  /* Color Palette */
+  --primary-color: #007BFF;
+  --secondary-color: #FF9800;
+  --accent-color: #4CAF50;
+  --background-gradient: linear-gradient(to bottom, #E3F2FD, white);
+  --text-color: #333;
+  --input-border-color: #BDBDBD;
+  --error-color: #E53935;
+  
+  /* Typography */
+  --font-family: 'Roboto', sans-serif;
+  --font-size-base: 16px;
+  --font-size-small: 14px;
+  --font-size-large: 18px;
+}
+
+* {
+  font-family: var(--font-family);
+  box-sizing: border-box;
+}
+
+body {
+  font-size: var(--font-size-base);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  background: white;
+}
+
+.gradient-background {
+  background: var(--background-gradient);
+  min-height: 100vh;
+}
+
+.full-width-button {
+  width: 90%;
+  border-radius: 8px;
+  margin: 10px auto;
+  text-transform: none;
+}
+
+.input-with-icon {
+  padding-left: 40px;
+  background-position: 10px center;
+  background-repeat: no-repeat;
+}
+
+.password-strength {
+  &.weak { color: red; }
+  &.medium { color: orange; }
+  &.strong { color: green; }
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+
+/* Form Styles */
+ion-item {
+  --background: transparent;
+  --border-color: var(--input-border-color);
+  --border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+ion-input {
+  --padding-start: 10px;
+}
+
+.invalid {
+  border-bottom: 2px solid var(--error-color);
+}
+
+/* Product Card Styles */
+.product-card {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  .product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 15px;
+  }
+
+  .product-details {
+    flex-grow: 1;
+
+    .product-name {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .product-description {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .product-price {
+      font-size: 16px;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+  }
+}

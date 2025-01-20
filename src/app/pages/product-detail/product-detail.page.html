@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Detalles del Producto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="product">
+  <div class="product-image-container">
+    <img [src]="product.image" [alt]="product.name" class="product-image">
+    <div 
+      *ngIf="product.originalPrice" 
+      class="discount-badge">
+      {{ calculateDiscount() }}%
+    </div>
+  </div>
+
+  <div class="product-details">
+    <h1 class="product-name">{{ product.name }}</h1>
+    <p class="product-description">{{ product.description }}</p>
+
+    <div class="price-section">
+      <span 
+        *ngIf="product.originalPrice" 
+        class="original-price">
+        {{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}
+      </span>
+      <span class="current-price">
+        {{ product.price | currency:'USD':'symbol':'1.2-2' }}
+      </span>
+    </div>
+
+    <div class="stock-info">
+      <ion-icon name="cube-outline"></ion-icon>
+      <span>Stock disponible: {{ product.stock }}</span>
+    </div>
+
+    <div class="quantity-control">
+      <ion-button 
+        fill="clear" 
+        (click)="decrementQuantity()"
+        [disabled]="quantity <= 1">
+        <ion-icon name="remove"></ion-icon>
+      </ion-button>
+      <span class="quantity">{{ quantity }}</span>
+      <ion-button 
+        fill="clear" 
+        (click)="incrementQuantity()"
+        [disabled]="quantity >= product.stock">
+        <ion-icon name="add"></ion-icon>
+      </ion-button>
+    </div>
+
+    <ion-button 
+      expand="full" 
+      color="primary" 
+      (click)="addToCart()"
+      [disabled]="product.stock === 0">
+      <ion-icon name="cart" slot="start"></ion-icon>
+      Añadir al Carrito
+    </ion-button>
+  </div>
+</ion-content>

@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Promociones</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Featured Promotions Carousel -->
+  <div class="featured-promotions" *ngIf="featuredPromotions.length > 0">
+    <ion-slides [options]="{ slidesPerView: 1, spaceBetween: 10, autoplay: true }">
+      <ion-slide *ngFor="let promo of featuredPromotions">
+        <div class="featured-promo-card" 
+             [style.background-image]="'url(' + promo.backgroundImage + ')'">
+          <div class="promo-overlay">
+            <h2>{{ promo.title }}</h2>
+            <p>{{ promo.description }}</p>
+            <ion-button 
+              color="light" 
+              (click)="applyPromotion(promo)">
+              Aplicar Promoción
+            </ion-button>
+          </div>
+        </div>
+      </ion-slide>
+    </ion-slides>
+  </div>
+
+  <!-- All Promotions List -->
+  <div class="promotions-list">
+    <h3>Todas las Promociones</h3>
+    
+    <!-- Empty State -->
+    <div 
+      *ngIf="promotions.length === 0" 
+      class="empty-promotions">
+      <ion-icon name="pricetags-outline"></ion-icon>
+      <h2>Sin Promociones Activas</h2>
+      <p>Próximamente tendremos grandes ofertas para ti.</p>
+    </div>
+
+    <!-- Promotions Grid -->
+    <div class="promotions-grid" *ngIf="promotions.length > 0">
+      <div 
+        *ngFor="let promo of promotions" 
+        class="promo-card"
+        (click)="navigateToProductDetails(promo.productId)">
+        
+        <div class="promo-image">
+          <img [src]="promo.image" [alt]="promo.title">
+          <div class="promo-badge">
+            {{ promo.discountPercentage }}% OFF
+          </div>
+        </div>
+
+        <div class="promo-details">
+          <h3>{{ promo.title }}</h3>
+          <p>{{ promo.description }}</p>
+          
+          <div class="promo-pricing">
+            <span class="original-price">
+              {{ promo.originalPrice | currency:'USD':'symbol':'1.2-2' }}
+            </span>
+            <span class="discounted-price">
+              {{ promo.discountedPrice | currency:'USD':'symbol':'1.2-2' }}
+            </span>
+          </div>
+
+          <ion-button 
+            expand="block" 
+            color="primary"
+            (click)="applyPromotion(promo)">
+            Aplicar Promoción
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

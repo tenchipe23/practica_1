@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Mi Carrito</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="clearCart()" *ngIf="cart.items.length > 0">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="cart.items.length > 0" class="cart-container">
+    <ion-list class="cart-items">
+      <ion-item-sliding *ngFor="let item of cart.items">
+        <ion-item lines="none">
+          <ion-thumbnail slot="start">
+            <img [src]="item.product.image" [alt]="item.product.name">
+          </ion-thumbnail>
+          <ion-label>
+            <h2>{{ item.product.name }}</h2>
+            <p>{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</p>
+          </ion-label>
+          
+          <ion-buttons slot="end" class="quantity-control">
+            <ion-button fill="clear" color="dark" (click)="updateQuantity(item, -1)">
+              <ion-icon name="remove-circle-outline"></ion-icon>
+            </ion-button>
+            <ion-label>{{ item.quantity }}</ion-label>
+            <ion-button fill="clear" color="dark" (click)="updateQuantity(item, 1)">
+              <ion-icon name="add-circle-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="removeItem(item.product.id)">
+            <ion-icon name="trash" slot="icon-only"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>{{ getCartTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+      <div *ngIf="getDiscount() > 0" class="summary-row discount">
+        <span>Descuento</span>
+        <span>-{{ getDiscount() | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>{{ getFinalTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <ion-button 
+      expand="full" 
+      color="primary" 
+      class="checkout-button"
+      (click)="navigateToCheckout()">
+      Proceder al Checkout
+      <ion-icon name="card" slot="end"></ion-icon>
+    </ion-button>
+  </div>
+
+  <div *ngIf="cart.items.length === 0" class="empty-cart">
+    <ion-icon name="cart-outline"></ion-icon>
+    <h2>Tu carrito está vacío</h2>
+    <p>Parece que aún no has añadido productos</p>
+    <ion-button 
+      color="primary" 
+      (click)="navigateToProducts()">
+      Explorar Productos
+    </ion-button>
+  </div>
+</ion-content>

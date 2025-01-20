@@ -1,0 +1,84 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Hola, {{ userName }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="navigateToProfile()">
+        <ion-icon name="person-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="navigateToCart()">
+        <ion-icon name="cart-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Featured Products Carousel -->
+  <ion-slides [options]="{ slidesPerView: 1, spaceBetween: 10, centeredSlides: true }">
+    <ion-slide *ngFor="let product of featuredProducts">
+      <div class="featured-product-slide">
+        <img [src]="product.image" [alt]="product.name">
+        <div class="slide-content">
+          <h2>{{ product.name }}</h2>
+          <p>{{ product.description }}</p>
+          <ion-button 
+            fill="clear" 
+            color="light"
+            (click)="navigateToProductDetail(product.id)">
+            Ver Detalles
+          </ion-button>
+        </div>
+      </div>
+    </ion-slide>
+  </ion-slides>
+
+  <!-- Categories Section -->
+  <section class="categories-section">
+    <h3>Categorías</h3>
+    <div class="categories-grid">
+      <div 
+        *ngFor="let category of recommendedCategories" 
+        class="category-item"
+        (click)="navigateToProductList(category.name)">
+        <ion-icon [name]="category.icon"></ion-icon>
+        <span>{{ category.name }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Offers Section -->
+  <section class="offers-section">
+    <div class="section-header">
+      <h3>Ofertas</h3>
+      <ion-button 
+        fill="clear" 
+        color="primary"
+        (click)="navigateToPromotions()">
+        Ver Todas
+      </ion-button>
+    </div>
+    
+    <div class="offers-grid">
+      <div 
+        *ngFor="let product of promotionalProducts" 
+        class="product-card"
+        (click)="navigateToProductDetail(product.id)">
+        <img [src]="product.image" [alt]="product.name">
+        <div class="product-details">
+          <h4>{{ product.name }}</h4>
+          <div class="price-container">
+            <span class="original-price" *ngIf="product.originalPrice">
+              {{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}
+            </span>
+            <span class="current-price">
+              {{ product.price | currency:'USD':'symbol':'1.2-2' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</ion-content>

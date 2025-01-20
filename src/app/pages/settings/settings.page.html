@@ -1,0 +1,150 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Configuración</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- User Profile Section -->
+  <div class="settings-section user-profile">
+    <div class="profile-header">
+      <img 
+        [src]="user?.profileImage || 'assets/profile-placeholder.png'" 
+        alt="Perfil de Usuario"
+        class="profile-image">
+      <div class="profile-info">
+        <h2>{{ user?.name }}</h2>
+        <p>{{ user?.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Settings -->
+  <div class="settings-section">
+    <h3>Cuenta</h3>
+    
+    <!-- Change Password -->
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <ion-list>
+        <ion-item lines="none">
+          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+          <ion-input 
+            type="password" 
+            formControlName="currentPassword" 
+            placeholder="Contraseña Actual">
+          </ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-icon name="key-outline" slot="start"></ion-icon>
+          <ion-input 
+            type="password" 
+            formControlName="newPassword" 
+            placeholder="Nueva Contraseña">
+          </ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-icon name="key-outline" slot="start"></ion-icon>
+          <ion-input 
+            type="password" 
+            formControlName="confirmPassword" 
+            placeholder="Confirmar Nueva Contraseña">
+          </ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-button 
+        expand="block" 
+        color="primary" 
+        type="submit"
+        [disabled]="passwordForm.invalid">
+        Cambiar Contraseña
+      </ion-button>
+    </form>
+  </div>
+
+  <!-- App Preferences -->
+  <div class="settings-section">
+    <h3>Preferencias de la Aplicación</h3>
+
+    <!-- Dark Mode -->
+    <ion-item lines="none">
+      <ion-icon name="moon-outline" slot="start"></ion-icon>
+      <ion-label>Modo Oscuro</ion-label>
+      <ion-toggle 
+        [checked]="settings.darkMode"
+        (ionChange)="toggleDarkMode()">
+      </ion-toggle>
+    </ion-item>
+
+    <!-- Language -->
+    <ion-item lines="none" (click)="openLanguageSelection()">
+      <ion-icon name="language-outline" slot="start"></ion-icon>
+      <ion-label>Idioma</ion-label>
+      <ion-note slot="end">
+        <span>{{ getLanguageName(settings.language) }}</span>
+      </ion-note>
+    </ion-item>
+
+    <!-- Currency -->
+    <ion-item lines="none" (click)="openCurrencySelection()">
+      <ion-icon name="cash-outline" slot="start"></ion-icon>
+      <ion-label>Moneda</ion-label>
+      <ion-note slot="end">
+        <span>{{ getCurrencyName(settings.currency) }}</span>
+      </ion-note>
+    </ion-item>
+  </div>
+
+  <!-- Notifications -->
+  <div class="settings-section">
+    <h3>Notificaciones</h3>
+
+    <ion-item lines="none">
+      <ion-icon name="mail-outline" slot="start"></ion-icon>
+      <ion-label>Notificaciones por Correo</ion-label>
+      <ion-toggle 
+        [checked]="settings.notifications.email"
+        (ionChange)="toggleNotification('email')">
+      </ion-toggle>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
+      <ion-label>Notificaciones Push</ion-label>
+      <ion-toggle 
+        [checked]="settings.notifications.push"
+        (ionChange)="toggleNotification('push')">
+      </ion-toggle>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-icon name="pricetag-outline" slot="start"></ion-icon>
+      <ion-label>Promociones</ion-label>
+      <ion-toggle 
+        [checked]="settings.notifications.promotions"
+        (ionChange)="toggleNotification('promotions')">
+      </ion-toggle>
+    </ion-item>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="settings-section danger-zone">
+    <h3>Zona de Peligro</h3>
+
+    <ion-button 
+      expand="block" 
+      color="danger" 
+      fill="outline"
+      (click)="deleteAccount()">
+      <ion-icon name="trash-outline" slot="start"></ion-icon>
+      Eliminar Cuenta
+    </ion-button>
+  </div>
+</ion-content>

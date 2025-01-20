@@ -1,0 +1,46 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40px;
+
+  .logo {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+  }
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: var(--input-border-color);
+  --border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+ion-input {
+  --padding-start: 10px;
+}
+
+.invalid {
+  border-bottom: 2px solid red;
+}
+
+ion-button.full-width-button {
+  margin-top: 20px;
+}
+
+.ion-margin-top {
+  margin-top: 20px;
+}
+
+.ion-margin-bottom {
+  margin-bottom: 20px;
+}

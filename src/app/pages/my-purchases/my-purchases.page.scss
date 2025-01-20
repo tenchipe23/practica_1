@@ -1,0 +1,39 @@
+.purchases-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+  
+    @media (max-width: 600px) {
+      padding: 8px;
+    }
+  
+    .total-section {
+      text-align: right;
+      padding: 8px;
+      font-size: 1.2em;
+    }
+  
+    .no-purchases {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      text-align: center;
+  
+      ion-icon {
+        font-size: 6rem;
+        color: var(--ion-color-medium);
+        margin-bottom: 16px;
+      }
+  
+      h2 {
+        margin-bottom: 8px;
+      }
+  
+      p {
+        margin-bottom: 16px;
+        color: var(--ion-color-medium);
+      }
+    }
+  }

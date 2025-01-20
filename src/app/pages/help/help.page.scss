@@ -1,0 +1,17 @@
+.help-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+  
+    @media (max-width: 600px) {
+      padding: 8px;
+    }
+  
+    ion-list {
+      margin-bottom: 16px;
+    }
+  
+    ion-card {
+      margin-top: 16px;
+    }
+  }

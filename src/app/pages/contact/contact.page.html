@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Contáctanos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="contact-container">
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+      <ion-list>
+        <ion-item>
+          <ion-label position="floating">Nombre</ion-label>
+          <ion-input formControlName="name" type="text"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Correo electrónico</ion-label>
+          <ion-input formControlName="email" type="email"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="floating">Mensaje</ion-label>
+          <ion-textarea formControlName="message" rows="4"></ion-textarea>
+        </ion-item>
+      </ion-list>
+
+      <div class="ion-padding">
+        <ion-button expand="block" type="submit" [disabled]="!contactForm.valid">
+          Enviar Mensaje
+        </ion-button>
+      </div>
+    </form>
+
+    <div class="contact-info">
+      <h2>Información de Contacto</h2>
+      <p>
+        <ion-icon name="call-outline"></ion-icon> Teléfono: +1 (555) 123-4567
+      </p>
+      <p>
+        <ion-icon name="mail-outline"></ion-icon> Email: soporte&#64;miapp.com
+      </p>
+    </div>
+  </div>
+</ion-content>

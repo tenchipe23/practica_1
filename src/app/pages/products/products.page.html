@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Productos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterModal()">
+        <ion-icon name="filter"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Categories Filter -->
+  <div class="categories-filter">
+    <ion-chip 
+      *ngFor="let category of categories" 
+      [color]="selectedCategory === category.name ? 'primary' : 'medium'"
+      (click)="onCategorySelect(category.name)">
+      <ion-icon [name]="category.icon"></ion-icon>
+      <ion-label>{{ category.name }}</ion-label>
+    </ion-chip>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="products-grid">
+    <div 
+      *ngFor="let product of filteredProducts" 
+      class="product-card"
+      (click)="navigateToProductDetail(product.id)">
+      <div class="product-image-container">
+        <img [src]="product.image" [alt]="product.name" class="product-image">
+        <div 
+          *ngIf="product.originalPrice" 
+          class="discount-badge">
+          {{ Math.round((1 - product.price / product.originalPrice) * 100) }}%
+        </div>
+      </div>
+      
+      <div class="product-details">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-description">{{ product.description }}</p>
+        
+        <div class="product-price-container">
+          <span 
+            *ngIf="product.originalPrice" 
+            class="original-price">
+            {{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}
+          </span>
+          <span class="current-price">
+            {{ product.price | currency:'USD':'symbol':'1.2-2' }}
+          </span>
+        </div>
+
+        <div class="product-actions">
+          <ion-button 
+            fill="clear" 
+            color="primary"
+            (click)="addToCart(product, $event)">
+            <ion-icon name="cart" slot="start"></ion-icon>
+            Añadir
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div 
+    *ngIf="filteredProducts.length === 0" 
+    class="empty-state">
+    <ion-icon name="cube-outline"></ion-icon>
+    <h3>No hay productos</h3>
+    <p>No se encontraron productos que coincidan con tus filtros.</p>
+  </div>
+</ion-content>

@@ -1,0 +1,127 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Mis Pedidos</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterOptions()">
+        <ion-icon name="filter"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Empty State -->
+  <div 
+    *ngIf="orders.length === 0" 
+    class="empty-orders-container">
+    <ion-icon name="cube-outline"></ion-icon>
+    <h2>No tienes pedidos</h2>
+    <p>Cuando realices una compra, aparecerá aquí.</p>
+    <ion-button 
+      color="primary" 
+      expand="block"
+      (click)="navigateToHome()">
+      Explorar Productos
+    </ion-button>
+  </div>
+
+  <!-- Filter Chip -->
+  <div 
+    *ngIf="orders.length > 0 && selectedFilter !== 'all'" 
+    class="filter-chip">
+    <ion-chip color="primary">
+      <ion-label>
+        {{ 
+          {
+            'pending': 'Pendientes',
+            'processing': 'En Proceso',
+            'shipped': 'Enviados',
+            'delivered': 'Entregados',
+            'cancelled': 'Cancelados'
+          }[selectedFilter] 
+        }}
+      </ion-label>
+      <ion-icon 
+        name="close" 
+        (click)="selectedFilter = 'all'; filterOrders()">
+      </ion-icon>
+    </ion-chip>
+  </div>
+
+  <!-- Orders List -->
+  <div 
+    *ngIf="filteredOrders.length > 0" 
+    class="orders-list">
+    <div 
+      *ngFor="let order of filteredOrders" 
+      class="order-card"
+      (click)="viewOrderDetails(order)">
+      <div class="order-header">
+        <span class="order-id">
+          Pedido #{{ order.id.slice(-6) }}
+        </span>
+        <span 
+          class="order-status"
+          [class.pending]="order.status === 'pending'"
+          [class.processing]="order.status === 'processing'"
+          [class.shipped]="order.status === 'shipped'"
+          [class.delivered]="order.status === 'delivered'"
+          [class.cancelled]="order.status === 'cancelled'">
+          {{ 
+            {
+              'pending': 'Pendiente',
+              'processing': 'En Proceso',
+              'shipped': 'Enviado',
+              'delivered': 'Entregado',
+              'cancelled': 'Cancelado'
+            }[order.status] 
+          }}
+        </span>
+      </div>
+
+      <div class="order-items">
+        <div 
+          *ngFor="let item of order.items" 
+          class="order-item">
+          <img [src]="item.product.image" [alt]="item.product.name">
+          <div class="item-details">
+            <h3>{{ item.product.name }}</h3>
+            <p>
+              {{ item.quantity }} x 
+              {{ item.product.price | currency:'USD':'symbol':'1.2-2' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <div class="order-date">
+          {{ order.orderDate | date:'mediumDate' }}
+        </div>
+        <div class="order-total">
+          {{ order.total | currency:'USD':'symbol':'1.2-2' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results for Filter -->
+  <div 
+    *ngIf="orders.length > 0 && filteredOrders.length === 0" 
+    class="no-results-container">
+    <ion-icon name="search-outline"></ion-icon>
+    <h2>Sin resultados</h2>
+    <p>No hay pedidos en la categoría seleccionada.</p>
+    <ion-button 
+      color="primary" 
+      fill="outline"
+      (click)="selectedFilter = 'all'; filterOrders()">
+      Mostrar Todos
+    </ion-button>
+  </div>
+</ion-content>

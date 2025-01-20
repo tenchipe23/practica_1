@@ -1,0 +1,70 @@
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.profile-image-container {
+  position: relative;
+  margin-bottom: 30px;
+
+  .profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+  }
+
+  .edit-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: var(--input-border-color);
+  --border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.input-with-icon {
+  padding-left: 10px;
+}
+
+.invalid {
+  border-bottom: 2px solid var(--error-color);
+}
+
+.full-width-button {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.logout-button {
+  margin-top: 10px;
+  --border-color: var(--error-color);
+  --color: var(--error-color);
+}
+
+// Disabled input styling
+ion-input[readonly] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

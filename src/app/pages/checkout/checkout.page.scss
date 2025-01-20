@@ -1,0 +1,161 @@
+.checkout-steps {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 15px 0;
+  background: #f4f4f4;
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+
+    ion-icon {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    &.active {
+      opacity: 1;
+      color: var(--primary-color);
+    }
+
+    &.disabled {
+      pointer-events: none;
+    }
+  }
+}
+
+.checkout-section {
+  padding: 20px;
+
+  h2 {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .saved-addresses, 
+  .saved-payment-methods {
+    margin-bottom: 20px;
+
+    h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    ion-chip {
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 10px;
+
+    ion-item {
+      flex: 1;
+    }
+  }
+
+  ion-item {
+    margin-bottom: 15px;
+    --background: transparent;
+    --border-color: var(--input-border-color);
+    --border-radius: 8px;
+
+    &.invalid {
+      --border-color: var(--error-color);
+    }
+  }
+
+  .button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+
+    ion-button {
+      flex: 1;
+    }
+  }
+}
+
+.order-summary {
+  background: #f4f4f4;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+
+  .order-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+
+    img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-right: 15px;
+    }
+
+    .item-details {
+      flex-grow: 1;
+
+      h4 {
+        margin: 0 0 5px;
+        font-size: 16px;
+      }
+
+      p {
+        margin: 0 0 5px;
+        color: #666;
+      }
+
+      span {
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .order-totals {
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+
+      &.discount {
+        color: var(--success-color);
+      }
+
+      &.total {
+        font-weight: bold;
+        color: var(--primary-color);
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+.shipping-details, 
+.payment-details {
+  background: #f4f4f4;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+
+  h3 {
+    margin-bottom: 10px;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+}

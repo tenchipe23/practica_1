@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="onBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Mi Perfil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="profile-container">
+    <!-- Profile Picture -->
+    <div class="profile-image-container">
+      <img 
+        [src]="profileImage" 
+        class="profile-image" 
+        alt="Foto de Perfil"
+        (click)="changeProfilePicture()">
+      <div class="edit-icon">
+        <ion-icon name="camera"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Profile Form -->
+    <form [formGroup]="profileForm" (ngSubmit)="onSaveChanges()">
+      <!-- Name Input -->
+      <ion-item lines="none" class="ion-margin-bottom">
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-input 
+          formControlName="name" 
+          type="text" 
+          placeholder="Nombre Completo" 
+          class="input-with-icon"
+          [class.invalid]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched">
+        </ion-input>
+      </ion-item>
+
+      <!-- Email Input (Disabled) -->
+      <ion-item lines="none" class="ion-margin-bottom">
+        <ion-icon name="mail-outline" slot="start"></ion-icon>
+        <ion-input 
+          formControlName="email" 
+          type="email" 
+          placeholder="Correo Electrónico" 
+          class="input-with-icon"
+          readonly>
+        </ion-input>
+      </ion-item>
+
+      <!-- Address Input -->
+      <ion-item lines="none" class="ion-margin-bottom">
+        <ion-icon name="location-outline" slot="start"></ion-icon>
+        <ion-input 
+          formControlName="address" 
+          type="text" 
+          placeholder="Dirección" 
+          class="input-with-icon"
+          [class.invalid]="profileForm.get('address')?.invalid && profileForm.get('address')?.touched">
+        </ion-input>
+      </ion-item>
+
+      <!-- Save Changes Button -->
+      <ion-button 
+        expand="block" 
+        color="primary" 
+        type="submit" 
+        class="full-width-button"
+        [disabled]="profileForm.invalid">
+        Guardar Cambios
+      </ion-button>
+    </form>
+
+    <!-- Logout Button -->
+    <ion-button 
+      expand="block" 
+      color="danger" 
+      fill="outline" 
+      class="full-width-button logout-button"
+      (click)="onLogout()">
+      Cerrar Sesión
+    </ion-button>
+  </div>
+</ion-content>

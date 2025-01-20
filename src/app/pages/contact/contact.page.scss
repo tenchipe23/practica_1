@@ -1,0 +1,25 @@
+.contact-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+  
+    @media (max-width: 600px) {
+      padding: 8px;
+    }
+  
+    .contact-info {
+      margin-top: 16px;
+      text-align: center;
+  
+      p {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 8px 0;
+  
+        ion-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }

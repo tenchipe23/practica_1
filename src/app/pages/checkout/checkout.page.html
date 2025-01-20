@@ -1,0 +1,230 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="navigateBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Finalizar Compra</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Stepper Navigation -->
+  <div class="checkout-steps">
+    <div 
+      class="step" 
+      [class.active]="currentStep === 1"
+      (click)="currentStep = 1">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>Dirección</span>
+    </div>
+    <div 
+      class="step" 
+      [class.active]="currentStep === 2"
+      [class.disabled]="currentStep === 1"
+      (click)="currentStep === 2 || currentStep === 3 ? currentStep = 2 : null">
+      <ion-icon name="card-outline"></ion-icon>
+      <span>Pago</span>
+    </div>
+    <div 
+      class="step" 
+      [class.active]="currentStep === 3"
+      [class.disabled]="currentStep !== 3">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>
+      <span>Revisar</span>
+    </div>
+  </div>
+
+  <!-- Shipping Address Step -->
+  <div *ngIf="currentStep === 1">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Seleccionar Dirección de Envío</ion-label>
+      </ion-list-header>
+
+      <!-- Saved Addresses -->
+      <ion-radio-group>
+        <ion-item *ngFor="let address of savedAddresses">
+          <ion-label>
+            {{ address.fullName }}<br>
+            {{ address.streetAddress }}, {{ address.city }}, {{ address.state }} {{ address.postalCode }}
+          </ion-label>
+          <ion-radio 
+            (click)="selectSavedAddress(address)"
+            [value]="address">
+          </ion-radio>
+        </ion-item>
+      </ion-radio-group>
+
+      <!-- Shipping Form -->
+      <form [formGroup]="shippingForm">
+        <ion-item>
+          <ion-label position="floating">Nombre Completo</ion-label>
+          <ion-input formControlName="fullName"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Dirección</ion-label>
+          <ion-input formControlName="streetAddress"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Ciudad</ion-label>
+          <ion-input formControlName="city"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Estado</ion-label>
+          <ion-input formControlName="state"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Código Postal</ion-label>
+          <ion-input formControlName="postalCode"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">País</ion-label>
+          <ion-input formControlName="country"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Teléfono</ion-label>
+          <ion-input formControlName="phoneNumber"></ion-input>
+        </ion-item>
+      </form>
+
+      <ion-button 
+        expand="block" 
+        (click)="nextStep()" 
+        [disabled]="!shippingForm.valid">
+        Siguiente
+      </ion-button>
+    </ion-list>
+  </div>
+
+  <!-- Payment Method Step -->
+  <div *ngIf="currentStep === 2">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Seleccionar Método de Pago</ion-label>
+      </ion-list-header>
+
+      <!-- Saved Payment Methods -->
+      <ion-radio-group>
+        <ion-item *ngFor="let method of savedPaymentMethods">
+          <ion-label>
+            {{ method.cardHolderName }} - {{ method.type }} 
+            **** **** **** {{ method.lastFourDigits || 'N/A' }}
+          </ion-label>
+          <ion-radio 
+            (click)="selectPaymentMethod(method)"
+            [value]="method">
+          </ion-radio>
+        </ion-item>
+      </ion-radio-group>
+
+      <!-- Payment Form -->
+      <form [formGroup]="paymentForm">
+        <ion-item>
+          <ion-label position="floating">Tipo de Tarjeta</ion-label>
+          <ion-select formControlName="cardType">
+            <ion-select-option value="credit">Crédito</ion-select-option>
+            <ion-select-option value="debit">Débito</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Número de Tarjeta</ion-label>
+          <ion-input formControlName="cardNumber" type="text"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Nombre del Titular</ion-label>
+          <ion-input formControlName="cardHolderName"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Fecha de Expiración</ion-label>
+          <ion-input formControlName="expiryDate" placeholder="MM/YY"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">CVV</ion-label>
+          <ion-input formControlName="cvv" type="password"></ion-input>
+        </ion-item>
+      </form>
+
+      <ion-button 
+        expand="block" 
+        (click)="previousStep()">
+        Anterior
+      </ion-button>
+      <ion-button 
+        expand="block" 
+        (click)="nextStep()" 
+        [disabled]="!paymentForm.valid">
+        Siguiente
+      </ion-button>
+    </ion-list>
+  </div>
+
+  <!-- Order Review Step -->
+  <div *ngIf="currentStep === 3">
+    <ion-list>
+      <ion-list-header>
+        <ion-label>Revisar Orden</ion-label>
+      </ion-list-header>
+
+      <!-- Order Summary -->
+      <ion-item *ngFor="let item of cart.items">
+        <ion-label>
+          {{ item.product.name }} x {{ item.quantity }}
+          <p>{{ item.product.price | currency:'USD':'symbol':'1.2-2' }}</p>
+        </ion-label>
+        <ion-note slot="end">
+          {{ item.product.price * item.quantity | currency:'USD':'symbol':'1.2-2' }}
+        </ion-note>
+      </ion-item>
+
+      <!-- Total -->
+      <ion-item>
+        <ion-label>Total</ion-label>
+        <ion-note slot="end">
+          {{ calculateTotal() | currency:'USD':'symbol':'1.2-2' }}
+        </ion-note>
+      </ion-item>
+
+      <!-- Shipping Address -->
+      <ion-item-divider>
+        <ion-label>Dirección de Envío</ion-label>
+      </ion-item-divider>
+      <ion-item>
+        <ion-label>
+          {{ shippingForm.get('fullName')?.value }}<br>
+          {{ shippingForm.get('streetAddress')?.value }}<br>
+          {{ shippingForm.get('city')?.value }}, 
+          {{ shippingForm.get('state')?.value }} 
+          {{ shippingForm.get('postalCode')?.value }}<br>
+          {{ shippingForm.get('country')?.value }}
+        </ion-label>
+      </ion-item>
+
+      <!-- Payment Method -->
+      <ion-item-divider>
+        <ion-label>Método de Pago</ion-label>
+      </ion-item-divider>
+      <ion-item>
+        <ion-label>
+          {{ paymentForm.get('cardType')?.value | titlecase }} -
+          **** **** **** {{ paymentForm.get('cardNumber')?.value.slice(-4) }}<br>
+          {{ paymentForm.get('cardHolderName')?.value }}
+        </ion-label>
+      </ion-item>
+
+      <!-- Navigation Buttons -->
+      <ion-button 
+        expand="block" 
+        (click)="previousStep()">
+        Anterior
+      </ion-button>
+      <ion-button 
+        expand="block" 
+        (click)="completeOrder()"
+        [disabled]="!shippingForm.valid || !paymentForm.valid">
+        Completar Orden
+      </ion-button>
+    </ion-list>
+  </div>
+</ion-content>

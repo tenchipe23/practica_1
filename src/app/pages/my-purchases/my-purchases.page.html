@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mis Compras</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="purchases-container">
+    <ion-list *ngIf="purchases.length > 0; else noPurchases">
+      <ion-card *ngFor="let purchase of purchases">
+        <ion-card-header>
+          <ion-card-title>Compra #{{ purchase.id }}</ion-card-title>
+          <ion-card-subtitle>
+            {{ purchase.date | date:'mediumDate' }}
+            <ion-badge [color]="getStatusColor(purchase.status)">
+              {{ purchase.status }}
+            </ion-badge>
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let item of purchase.items">
+              <ion-label>
+                <h2>{{ item.name }}</h2>
+                <p>{{ item.quantity }} x ${{ item.price | number:'1.2-2' }}</p>
+              </ion-label>
+              <ion-note slot="end">
+                ${{ item.quantity * item.price | number:'1.2-2' }}
+              </ion-note>
+            </ion-item>
+          </ion-list>
+
+          <div class="total-section">
+            <strong>Total: ${{ purchase.total | number:'1.2-2' }}</strong>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+
+    <ng-template #noPurchases>
+      <div class="no-purchases">
+        <ion-icon name="cart-outline"></ion-icon>
+        <h2>No tienes compras realizadas</h2>
+        <p>Explora nuestros productos y realiza tu primera compra</p>
+        <ion-button [routerLink]="'/products'" expand="block">
+          Ver Productos
+        </ion-button>
+      </div>
+    </ng-template>
+  </div>
+</ion-content>
