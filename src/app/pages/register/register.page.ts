@@ -25,7 +25,7 @@ export class RegisterPage implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router, // Cambia NavController por Router
+    private router: Router, 
     private alertController: AlertController
   ) {
     this.registerForm = this.formBuilder.group({
@@ -40,13 +40,11 @@ export class RegisterPage implements OnInit {
   }
 
   ngOnInit() {
-    // Monitor password strength
     this.registerForm.get('password')?.valueChanges.subscribe(password => {
-      this.passwordStrength = this.authService.checkPasswordStrength(password);
+      this.passwordStrength = this.checkPasswordStrength(password);
     });
   }
 
-  // Custom validator to check if passwords match
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
@@ -54,6 +52,22 @@ export class RegisterPage implements OnInit {
     return password && confirmPassword && password.value === confirmPassword.value 
       ? null 
       : { passwordMismatch: true };
+  }
+
+  checkPasswordStrength(password: string): 'weak' | 'medium' | 'strong' {
+    if (password.length < 6) return 'weak';
+    
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+    const strengthCount = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChar]
+      .filter(Boolean).length;
+
+    if (strengthCount >= 3) return 'strong';
+    if (strengthCount >= 2) return 'medium';
+    return 'weak';
   }
 
   async onRegister() {
@@ -64,37 +78,35 @@ export class RegisterPage implements OnInit {
         password: this.registerForm.value.password,
         confirmPassword: this.registerForm.value.confirmPassword
       };
-
-      const success = this.authService.register(registerData);
-      
-      if (success) {
-        const alert = await this.alertController.create({
-          header: 'Registro Exitoso',
-          message: 'Tu cuenta ha sido creada. Inicia sesión para continuar.',
-          buttons: [{
-            text: 'Iniciar Sesión',
-            handler: () => {
-              // Usa Router para navegar
-              this.router.navigate(['/login'], { 
-                replaceUrl: true 
-              });
-            }
-          }]
-        });
-        await alert.present();
-      } else {
-        const alert = await this.alertController.create({
-          header: 'Error de Registro',
-          message: 'No se pudo crear la cuenta. Verifica tus datos.',
-          buttons: ['OK']
-        });
-        await alert.present();
-      }
+  
+      this.authService.register(registerData).subscribe(async success => {
+        if (success) {
+          const alert = await this.alertController.create({
+            header: 'Registro Exitoso',
+            message: 'Tu cuenta ha sido creada. Inicia sesión para continuar.',
+            buttons: [{
+              text: 'Iniciar Sesión',
+              handler: () => {
+                this.router.navigate(['/login'], { 
+                  replaceUrl: true 
+                });
+              }
+            }]
+          });
+          await alert.present();
+        } else {
+          const alert = await this.alertController.create({
+            header: 'Error de Registro',
+            message: 'No se pudo crear la cuenta. Verifica tus datos.',
+            buttons: ['OK']
+          });
+          await alert.present();
+        }
+      });
     }
   }
 
   onLogin() {
-    // Usa Router para navegar
     this.router.navigate(['/login'], { 
       replaceUrl: true 
     });

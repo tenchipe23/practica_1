@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, NavController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { NavController } from '@ionic/angular';
-import { DataService } from '../../services/data.service';
+import { HttpService } from '../../services/http.service';
 import { CartService } from '../../services/cart.service';
 import { Product } from '../../models';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
-// Define un tipo extendido para manejar la cantidad
 interface ProductWithQuantity extends Product {
   quantity: number;
 }
@@ -25,57 +25,94 @@ interface ProductWithQuantity extends Product {
 export class ProductDetailPage implements OnInit {
   product: Product | null = null;
   quantity: number = 1;
+  loading: boolean = true;
+  error: string | null = null;
   
   constructor(
     private route: ActivatedRoute,
-    private dataService: DataService,
+    private httpService: HttpService,
     private navCtrl: NavController,
     private cartService: CartService
   ) {}
 
   ngOnInit() {
-    // Obtiene el ID del producto de la URL
     this.route.paramMap.subscribe(params => {
-      const productId = Number(params.get('id'));
+      const productIdParam = params.get('id');
+      console.log('Raw Product ID from Route:', productIdParam);
       
-      // Busca el producto por ID
-      this.product = this.dataService.getProductById(productId);
+      params.keys.forEach(key => {
+        console.log(`Route Param ${key}:`, params.get(key));
+      });
+      
+      const productId = Number(productIdParam);
+      
+      console.log('Parsed Product ID:', productId);
+      
+      if (isNaN(productId) || productId <= 0) {
+        console.error('Invalid product ID:', productIdParam);
+        this.error = 'ID de producto inválido';
+        this.loading = false;
+        
+        this.navCtrl.navigateBack('/products');
+        return;
+      }
+  
+      this.loadProductDetails(productId);
+    });
+  }
+  
+  loadProductDetails(productId: number) {
+    this.loading = true;
+    this.error = null;
+    
+    console.log('Loading product details for ID:', productId);
+  
+    this.httpService.getProductById(productId).pipe(
+      catchError(error => {
+        console.error('Error loading product details', error);
+        this.error = 'No se pudo cargar el producto';
+        this.loading = false;
+        return of(null);
+      })
+    ).subscribe(product => {
+      console.log('Fetched Product:', product);
+      
+      this.product = product ?? null;
+      this.loading = false;
+  
+      if (!this.product) {
+        this.error = 'Producto no encontrado';
+        console.warn(`No product found for ID: ${productId}`);
+      }
     });
   }
 
   incrementQuantity() {
     if (!this.product) return;
     
-    // Incrementa la cantidad, limitada por el stock
     if (this.quantity < this.product.stock) {
       this.quantity++;
     }
   }
 
   decrementQuantity() {
-    // Decrementa la cantidad, mínimo 1
     if (this.quantity > 1) {
       this.quantity--;
     }
   }
 
   addToCart() {
-    if (!this.product) return;
-
-    // Crea un objeto de producto con cantidad
-    const productToAdd: ProductWithQuantity = {
-      ...this.product,
-      quantity: this.quantity
-    };
-
-    // Añade el producto al carrito
-    this.cartService.addToCart(productToAdd);
-
-    // TODO: Implementar toast de confirmación
-    console.log('Producto añadido al carrito:', productToAdd);
+    if (this.product) {
+      const productToAdd: ProductWithQuantity = {
+        ...this.product,
+        quantity: this.quantity
+      };
+      this.cartService.addToCart(productToAdd);
+      this.navCtrl.navigateForward('/cart');
+    }
   }
 
-  navigateBack() {
+  goBack() {
     this.navCtrl.back();
   }
 

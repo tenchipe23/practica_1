@@ -63,30 +63,57 @@
           <ion-label position="floating">Nombre Completo</ion-label>
           <ion-input formControlName="fullName"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="shippingForm.get('fullName')?.invalid && (shippingForm.get('fullName')?.dirty || shippingForm.get('fullName')?.touched)">
+          <small>{{ getErrorMessage(shippingForm, 'fullName') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">Dirección</ion-label>
           <ion-input formControlName="streetAddress"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="shippingForm.get('streetAddress')?.invalid && (shippingForm.get('streetAddress')?.dirty || shippingForm.get('streetAddress')?.touched)">
+          <small>{{ getErrorMessage(shippingForm, 'streetAddress') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">Ciudad</ion-label>
           <ion-input formControlName="city"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="shippingForm.get('city')?.invalid && (shippingForm.get('city')?.dirty || shippingForm.get('city')?.touched)">
+          <small>{{ getErrorMessage(shippingForm, 'city') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">Estado</ion-label>
           <ion-input formControlName="state"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="shippingForm.get('state')?.invalid && (shippingForm.get('state')?.dirty || shippingForm.get('state')?.touched)">
+          <small>{{ getErrorMessage(shippingForm, 'state') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">Código Postal</ion-label>
           <ion-input formControlName="postalCode"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="shippingForm.get('postalCode')?.invalid && (shippingForm.get('postalCode')?.dirty || shippingForm.get('postalCode')?.touched)">
+          <small>{{ getErrorMessage(shippingForm, 'postalCode') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">País</ion-label>
           <ion-input formControlName="country"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="shippingForm.get('country')?.invalid && (shippingForm.get('country')?.dirty || shippingForm.get('country')?.touched)">
+          <small>{{ getErrorMessage(shippingForm, 'country') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">Teléfono</ion-label>
           <ion-input formControlName="phoneNumber"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="shippingForm.get('phoneNumber')?.invalid && (shippingForm.get('phoneNumber')?.dirty || shippingForm.get('phoneNumber')?.touched)">
+          <small>{{ getErrorMessage(shippingForm, 'phoneNumber') }}</small>
+        </ion-text>
       </form>
 
       <ion-button 
@@ -128,22 +155,47 @@
             <ion-select-option value="debit">Débito</ion-select-option>
           </ion-select>
         </ion-item>
+
         <ion-item>
           <ion-label position="floating">Número de Tarjeta</ion-label>
-          <ion-input formControlName="cardNumber" type="text"></ion-input>
+          <ion-input 
+            formControlName="cardNumber" 
+            type="text" 
+            (ionInput)="formatCreditCardNumber($event)"
+            maxlength="19"></ion-input>
+          <ion-icon 
+            slot="end" 
+            [name]="getCreditCardIcon(paymentForm.get('cardNumber')?.value)"
+            class="card-icon">
+          </ion-icon>
         </ion-item>
+        <ion-text color="danger" *ngIf="paymentForm.get('cardNumber')?.invalid && (paymentForm.get('cardNumber')?.dirty || paymentForm.get('cardNumber')?.touched)">
+          <small>{{ getErrorMessage(paymentForm, 'cardNumber') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">Nombre del Titular</ion-label>
           <ion-input formControlName="cardHolderName"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="paymentForm.get('cardHolderName')?.invalid && (paymentForm.get('cardHolderName')?.dirty || paymentForm.get('cardHolderName')?.touched)">
+          <small>{{ getErrorMessage(paymentForm, 'cardHolderName') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">Fecha de Expiración</ion-label>
           <ion-input formControlName="expiryDate" placeholder="MM/YY"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="paymentForm.get('expiryDate')?.invalid && (paymentForm.get('expiryDate')?.dirty || paymentForm.get('expiryDate')?.touched)">
+          <small>{{ getErrorMessage(paymentForm, 'expiryDate') }}</small>
+        </ion-text>
+
         <ion-item>
           <ion-label position="floating">CVV</ion-label>
           <ion-input formControlName="cvv" type="password"></ion-input>
         </ion-item>
+        <ion-text color="danger" *ngIf="paymentForm.get('cvv')?.invalid && (paymentForm.get('cvv')?.dirty || paymentForm.get('cvv')?.touched)">
+          <small>{{ getErrorMessage(paymentForm, 'cvv') }}</small>
+        </ion-text>
       </form>
 
       <ion-button 

@@ -29,10 +29,8 @@ export class PromotionsPage implements OnInit {
   }
 
   loadPromotions() {
-    // Get promotions from data service
     this.promotions = this.dataService.getPromotions();
     
-    // Filter featured promotions
     this.featuredPromotions = this.promotions.filter(promo => promo.featured);
   }
 
@@ -41,7 +39,6 @@ export class PromotionsPage implements OnInit {
   }
 
   applyPromotion(promotion: any) {
-    // Logic to apply promotion to cart or product
     console.log('Applying promotion:', promotion);
   }
 

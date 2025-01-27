@@ -18,7 +18,6 @@ export class OrderService {
     private cartService: CartService,
     private dataService: DataService
   ) {
-    // Load saved data from local storage
     this.loadSavedData();
     this.initializeSampleData();
   }
@@ -26,7 +25,6 @@ export class OrderService {
   private loadSavedData() {
     const user = this.authService.getCurrentUser();
     if (user) {
-      // Load user's past orders, addresses, and payment methods
       const savedOrders = JSON.parse(
         localStorage.getItem(`orders_${user.id}`) || '[]'
       );
@@ -44,7 +42,6 @@ export class OrderService {
   }
 
   private initializeSampleData() {
-    // Add initialization logic if needed
   }
 
   getOrders(): Observable<Order[]> {

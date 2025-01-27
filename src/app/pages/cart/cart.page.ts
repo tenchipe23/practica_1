@@ -6,7 +6,8 @@ import { RouterModule } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { CartService } from '../../services/cart.service';
 import { Cart, CartItem } from '../../models';
-import { ToastController } from '@ionic/angular'; // Añade ToastController
+import { ToastController } from '@ionic/angular'; 
+import { Product } from '../../models'; // added import for Product
 
 @Component({
   selector: 'app-cart',
@@ -25,13 +26,13 @@ export class CartPage implements OnInit {
   cart: Cart = { 
     items: [], 
     total: 0,
-    discount: 0 // Añade descuento
+    discount: 0 
   };
 
   constructor(
     private cartService: CartService,
     private navCtrl: NavController,
-    private toastController: ToastController // Inyecta ToastController
+    private toastController: ToastController 
   ) {}
 
   ngOnInit() {
@@ -40,24 +41,74 @@ export class CartPage implements OnInit {
     });
   }
 
-  updateQuantity(item: CartItem, change: number) {
-    const newQuantity = item.quantity + change;
+  increaseQuantity(product: Product) {
+    console.group('Increase Quantity');
+    console.log('Attempting to increase quantity for:', {
+      productId: product.id,
+      productName: product.name,
+      currentStock: product.stock
+    });
+
+    const currentQuantity = this.cartService.getProductQuantityInCart(product);
     
-    // Verifica límites de stock
-    if (newQuantity > 0 && newQuantity <= item.product.stock) {
-      this.cartService.updateQuantity(item.product.id, newQuantity);
-    } else if (newQuantity <= 0) {
-      // Si la cantidad es 0 o negativa, elimina el producto
-      this.removeItem(item.product.id);
+    console.log('Current Cart Details:', {
+      currentQuantity: currentQuantity,
+      maxStock: product.stock
+    });
+
+    if (currentQuantity < product.stock) {
+      this.cartService.updateQuantity(product, 1);
+      console.log(`Successfully increased quantity for ${product.name}`);
     } else {
-      // Muestra un toast si se intenta añadir más productos de los disponibles
-      this.presentStockLimitToast(item.product);
+      console.warn(`Cannot increase quantity. Reached stock limit for ${product.name}`);
+      this.presentStockLimitToast(product);
     }
+
+    console.groupEnd();
   }
 
-  removeItem(productId: number) {
-    this.cartService.removeFromCart(productId);
-    this.presentRemoveToast();
+  decreaseQuantity(product: Product) {
+    console.group('Decrease Quantity');
+    console.log('Attempting to decrease quantity for:', {
+      productId: product.id,
+      productName: product.name
+    });
+
+    const currentQuantity = this.cartService.getProductQuantityInCart(product);
+    
+    console.log('Current Cart Details:', {
+      currentQuantity: currentQuantity
+    });
+
+    if (currentQuantity > 1) {
+      this.cartService.updateQuantity(product, -1);
+      console.log(`Successfully decreased quantity for ${product.name}`);
+    } else {
+
+      console.log(`Removing ${product.name} from cart`);
+      this.cartService.removeFromCart(product);
+    }
+
+    console.groupEnd();
+  }
+
+  removeItem(product: Product) {
+    console.group('Remove Item from Cart');
+    console.log('Attempting to remove product:', {
+      productId: product.id,
+      productName: product.name
+    });
+
+    try {
+      this.cartService.removeFromCart(product);
+      console.log(`Successfully removed ${product.name} from cart`);
+      
+      this.presentRemoveToast();
+    } catch (error) {
+      console.error('Error removing product from cart:', error);
+    }
+
+    console.groupEnd();
   }
 
   clearCart() {
@@ -74,7 +125,6 @@ export class CartPage implements OnInit {
   }
 
   navigateToCheckout() {
-    // Verifica si hay productos en el carrito antes de navegar
     if (this.cart.items.length > 0) {
       this.navCtrl.navigateForward('/checkout');
     } else {
@@ -82,37 +132,78 @@ export class CartPage implements OnInit {
     }
   }
 
+  get cartItems() {
+    return this.cartService.getCartItems();
+  }
+
   getCartTotal(): number {
-    return this.cart.items.reduce((total, item) => 
+    console.group(' Get Cart Total');
+    const total = this.cartItems.reduce((total, item) => 
       total + (item.product.price * item.quantity), 0);
+    
+    console.log('Cart Total Calculation:', {
+      items: this.cartItems.map(item => ({
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity
+      })),
+      total: total
+    });
+
+    console.groupEnd();
+    return total;
   }
 
-  // Método para calcular descuentos
   getDiscount(): number {
-    return this.cart.discount || 0;
+    console.group(' Get Discount');
+    const discount = this.cartService.getDiscount() || 0;
+    
+    console.log('Discount Calculation:', {
+      discount: discount
+    });
+
+    console.groupEnd();
+    return discount;
   }
 
-  // Método para calcular el total final
   getFinalTotal(): number {
-    return this.getCartTotal() - this.getDiscount();
+    console.group(' Get Final Total');
+    const cartTotal = this.getCartTotal();
+    const discount = this.getDiscount();
+    const finalTotal = Math.max(cartTotal - discount, 0);
+    
+    console.log('Final Total Calculation:', {
+      cartTotal: cartTotal,
+      discount: discount,
+      finalTotal: finalTotal
+    });
+
+    console.groupEnd();
+    return finalTotal;
   }
 
-  // Toasts para mejorar la experiencia de usuario
-  async presentStockLimitToast(product: any) {
-    const toast = await this.toastController.create({
-      message: `Solo quedan ${product.stock} unidades de ${product.name}`,
+  calculateTotal(): number {
+    return this.getFinalTotal();
+  }
+
+  calculateDiscount(): number {
+    return this.getDiscount();
+  }
+
+  private presentStockLimitToast(product: Product) {
+    this.toastController.create({
+      message: `Máximo de ${product.stock} unidades disponibles para ${product.name}`,
       duration: 2000,
       color: 'warning',
       position: 'bottom'
-    });
-    toast.present();
+    }).then(toast => toast.present());
   }
 
   async presentRemoveToast() {
     const toast = await this.toastController.create({
       message: 'Producto eliminado del carrito',
       duration: 2000,
-      color: 'danger',
+      color: 'secondary',
       position: 'bottom'
     });
     toast.present();

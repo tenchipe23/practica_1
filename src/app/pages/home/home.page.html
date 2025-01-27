@@ -16,7 +16,6 @@
 </ion-header>
 
 <ion-content>
-  <!-- Featured Products Carousel -->
   <ion-slides [options]="{ slidesPerView: 1, spaceBetween: 10, centeredSlides: true }">
     <ion-slide *ngFor="let product of featuredProducts">
       <div class="featured-product-slide">
@@ -35,21 +34,28 @@
     </ion-slide>
   </ion-slides>
 
-  <!-- Categories Section -->
   <section class="categories-section">
-    <h3>Categorías</h3>
-    <div class="categories-grid">
+    <h2>Categorías</h2>
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando categorías...</p>
+    </div>
+    <div *ngIf="!loading && recommendedCategories.length === 0" class="empty-state">
+      <ion-icon name="cube-outline" class="empty-icon"></ion-icon>
+      <p>No hay categorías disponibles</p>
+    </div>
+    <div *ngIf="!loading && recommendedCategories.length > 0" class="categories-grid">
       <div 
         *ngFor="let category of recommendedCategories" 
-        class="category-item"
-        (click)="navigateToProductList(category.name)">
+        class="category-item" 
+        (click)="navigateToProductList(category.name)"
+      >
         <ion-icon [name]="category.icon"></ion-icon>
         <span>{{ category.name }}</span>
       </div>
     </div>
   </section>
 
-  <!-- Offers Section -->
   <section class="offers-section">
     <div class="section-header">
       <h3>Ofertas</h3>

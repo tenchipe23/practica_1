@@ -20,6 +20,14 @@ export interface PaymentMethod {
   lastFourDigits?: string;
 }
 
+export interface Category {
+  _id?: string;
+  id?: string;
+  name: string;
+  icon?: string;
+  productCount?: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -30,6 +38,10 @@ export interface Product {
   category: string;
   stock: number;
   inStock?: boolean;
+  discount?: number;
+  rating?: number;
+  ratingCount?: number;
+  freeShipping?: boolean;
 }
 
 export interface CartItem {
@@ -64,6 +76,7 @@ export interface User {
   address?: string;
   savedAddresses?: ShippingAddress[];
   savedPaymentMethods?: PaymentMethod[];
+  role?: 'user' | 'admin';
 }
 
 export interface Order {

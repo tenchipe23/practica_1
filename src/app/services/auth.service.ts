@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { User, LoginCredentials, RegisterData } from '../models';
-import { DataService } from './data.service';
+import { tap, catchError, map } from 'rxjs/operators';
+import { HttpService } from './http.service';
+import { User as UserModel } from '../models/user.model';
+import { User as IndexUser } from '../models';
+import { LoginCredentials, RegisterData, LoginResponse } from '../models/user.model';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 
@@ -9,85 +12,170 @@ import { ToastController } from '@ionic/angular';
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private currentUserSubject = new BehaviorSubject<UserModel | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
-    private dataService: DataService,
+    private httpService: HttpService,
     private router: Router,
     private toastController: ToastController
   ) {
-    this.loadStoredUser();
+    setTimeout(() => this.loadStoredUser(), 0);
   }
 
   private loadStoredUser() {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
+    const token = localStorage.getItem('token');
+    if (token) {
       try {
-        const user = JSON.parse(storedUser);
-        this.currentUserSubject.next(user);
+        const isTokenValid = this.validateToken(token);
+        
+        if (!isTokenValid) {
+          this.logout();
+        } else {
+          this.fetchUserProfile().subscribe();
+        }
       } catch (error) {
-        console.error('Error parsing stored user', error);
-        localStorage.removeItem('currentUser');
+        console.error('Token validation error:', error);
+        this.logout();
       }
     }
   }
 
-  login(credentials: LoginCredentials): Observable<boolean> {
-    console.log('Attempting login with:', credentials);
-    
-    const users = this.dataService.getUsers();
-    const user = users.find(u => u.email === credentials.email);
+  private validateToken(token: string): boolean {
+    if (!token) return false;
 
-    if (user && user.password === credentials.password) {
-      console.log('Login successful for user:', user);
+    try {
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) return false;
+
+      const payload = JSON.parse(atob(tokenParts[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
       
-      this.currentUserSubject.next(user);
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      
-      this.presentToast('Inicio de sesión exitoso', 'success');
-      
-      return of(true);
-    } else {
-      console.log('Login failed');
-      this.presentToast('Credenciales incorrectas', 'danger');
-      return of(false);
+      return payload.exp > currentTime;
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      return false;
     }
   }
 
-  // Método para obtener el estado de autenticación actual
-  isAuthenticated(): boolean {
-    return this.currentUserSubject.getValue() !== null;
+  fetchUserProfile() {
+    return this.httpService.getUserProfile().pipe(
+      tap((user: IndexUser) => {
+        const userModel: UserModel = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          profileImage: user.profileImage,
+          password: '', 
+          phoneNumber: user.phoneNumber || '', 
+          address: user.address,
+          savedAddresses: user.savedAddresses,
+          savedPaymentMethods: user.savedPaymentMethods,
+          role: user.role || 'user'
+        };
+        
+        this.currentUserSubject.next(userModel);
+      }),
+      catchError((error) => {
+        console.error('User profile fetch failed:', error);
+        this.logout();
+        return of(null);
+      })
+    );
+  }
+
+  login(credentials: LoginCredentials): Observable<boolean> {
+    return this.httpService.login(credentials).pipe(
+      tap((response: LoginResponse) => {
+        if (response && response.token) {
+          localStorage.setItem('token', response.token);
+          
+          const user: UserModel = {
+            id: response._id,
+            name: response.name,
+            email: response.email,
+            password: '',  
+            phoneNumber: response.phoneNumber || '', 
+            role: response.role || 'user'
+          };
+          this.currentUserSubject.next(user);
+          
+          this.presentToast('Inicio de sesión exitoso', 'success');
+          
+          this.router.navigate(['/home'], { 
+            replaceUrl: true 
+          });
+        }
+      }),
+      map(response => !!(response && response.token)), 
+      catchError(error => {
+        console.error('Login error:', error);
+        this.presentToast('Credenciales incorrectas', 'danger');
+        return of(false);
+      })
+    );
+  }
+
+  register(data: RegisterData): Observable<boolean> {
+    if (data.password !== data.confirmPassword) {
+      this.presentToast('Las contraseñas no coinciden', 'danger');
+      return of(false);
+    }
+
+    const passwordStrength = this.checkPasswordStrength(data.password);
+    if (passwordStrength === 'weak') {
+      this.presentToast('La contraseña es demasiado débil', 'danger');
+      return of(false);
+    }
+
+    return this.httpService.register(data).pipe(
+      tap((response: LoginResponse) => {
+        if (response && response.token) {
+          localStorage.setItem('token', response.token);
+          
+          const user: UserModel = {
+            id: response._id,
+            name: response.name,
+            email: response.email,
+            password: '',  
+            phoneNumber: response.phoneNumber || '', 
+            role: response.role || 'user'
+          };
+          this.currentUserSubject.next(user);
+          
+          this.presentToast('Registro exitoso', 'success');
+          
+          this.router.navigate(['/home'], { 
+            replaceUrl: true 
+          });
+        }
+      }),
+      map(response => !!(response && response.token)), 
+      catchError(error => {
+        console.error('Registration error:', error);
+        const errorMessage = error.error?.message || 'Error en el registro';
+        this.presentToast(errorMessage, 'danger');
+        return of(false);
+      })
+    );
   }
 
   logout() {
-    // Clear user from local storage and current user subject
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
+    
     this.currentUserSubject.next(null);
     
-    // Show logout toast
     this.presentToast('Sesión finalizada', 'secondary');
     
-    // Navigate to login page
-    this.router.navigate(['/login']);
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
-  register(data: RegisterData): boolean {
-    // In a real app, this would validate and create a new user
-    // For now, we'll simulate successful registration
-    if (data.password !== data.confirmPassword) {
-      return false;
-    }
-
-    const existingUser = this.dataService.getUserByEmail(data.email);
-    if (existingUser) {
-      return false;
-    }
-
-    return true;
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('token');
+    return !!token;
   }
 
-  getCurrentUser(): User | null {
+  getCurrentUser(): UserModel | null {
     return this.currentUserSubject.getValue();
   }
 
@@ -101,7 +189,6 @@ export class AuthService {
     toast.present();
   }
 
-  // Password strength checker
   checkPasswordStrength(password: string): 'weak' | 'medium' | 'strong' {
     if (password.length < 6) return 'weak';
     
@@ -118,84 +205,65 @@ export class AuthService {
     return 'weak';
   }
 
-  async changePassword(currentPassword: string, newPassword: string) {
-    // Simulate password change validation
-    const user = this.getCurrentUser();
-    if (!user) {
-      throw new Error('Usuario no autenticado');
-    }
-
-    // In a real app, this would involve server-side validation
-    if (currentPassword !== user.password) {
-      throw new Error('La contraseña actual es incorrecta');
-    }
-
-    // Update user's password
-    user.password = newPassword;
-    this.updateUserInLocalStorage(user);
-
-    return true;
-  }
-
-  async deleteAccount() {
-    const user = this.getCurrentUser();
-    if (!user) {
-      throw new Error('Usuario no autenticado');
-    }
-
-    // Remove user from local storage
-    const users = this.getUsersFromLocalStorage();
-    const updatedUsers = users.filter(u => u.id !== user.id);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-
-    // Clear current user and logout
-    this.currentUserSubject.next(null);
-    localStorage.removeItem('currentUser');
-
-    return true;
-  }
-
-  private updateUserInLocalStorage(updatedUser: User) {
-    const users = this.getUsersFromLocalStorage();
-    const userIndex = users.findIndex(u => u.id === updatedUser.id);
-    
-    if (userIndex !== -1) {
-      users[userIndex] = updatedUser;
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      // Update current user
-      this.currentUserSubject.next(updatedUser);
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-    }
-  }
-
-  private getUsersFromLocalStorage(): User[] {
-    const users = localStorage.getItem('users');
-    return users ? JSON.parse(users) : [];
-  }
-
-  updateCurrentUser(updatedUser: User): Observable<boolean> {
+  async changePassword(currentPassword: string, newPassword: string): Promise<boolean> {
     try {
-      // Validate input
-      if (!updatedUser) {
-        return of(false);
+      const user = this.getCurrentUser();
+      if (!user) {
+        throw new Error('Usuario no autenticado');
       }
 
-      // Update user in local storage
-      this.updateUserInLocalStorage(updatedUser);
-
-      // Notify subscribers of the current user change
-      this.currentUserSubject.next(updatedUser);
-
-      // Show success toast
-      this.presentToast('Perfil actualizado exitosamente', 'success');
-
-      return of(true);
+      this.presentToast('Contraseña cambiada exitosamente', 'success');
+      return true;
     } catch (error) {
-      // Log error and show error toast
-      console.error('Error updating user:', error);
-      this.presentToast('Error al actualizar el perfil', 'danger');
-      return of(false);
+      this.presentToast('Error al cambiar la contraseña', 'danger');
+      return false;
     }
+  }
+
+  async deleteAccount(): Promise<boolean> {
+    try {
+      const user = this.getCurrentUser();
+      if (!user) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      
+      localStorage.removeItem('token');
+      this.currentUserSubject.next(null);
+      this.presentToast('Cuenta eliminada', 'secondary');
+      this.router.navigate(['/login'], { replaceUrl: true });
+      
+      return true;
+    } catch (error) {
+      this.presentToast('Error al eliminar la cuenta', 'danger');
+      return false;
+    }
+  }
+
+  updateCurrentUser(updatedUser: UserModel): Observable<boolean> {
+    return this.httpService.updateUserProfile(updatedUser).pipe(
+      map(response => {
+        const userModel: UserModel = {
+          id: response.id,
+          name: response.name,
+          email: response.email,
+          profileImage: response.profileImage,
+          password: '', 
+          phoneNumber: response.phoneNumber || '', 
+          address: response.address,
+          savedAddresses: response.savedAddresses,
+          savedPaymentMethods: response.savedPaymentMethods,
+          role: response.role || 'user'
+        };
+
+        this.currentUserSubject.next(userModel);
+        this.presentToast('Perfil actualizado exitosamente', 'success');
+        return true;
+      }),
+      catchError(error => {
+        this.presentToast('Error al actualizar el perfil', 'danger');
+        return of(false);
+      })
+    );
   }
 }

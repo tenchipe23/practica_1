@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { AuthService } from '../../services/auth.service';
-import { User } from '../../models';
+import { User } from '../../models/user.model'; // Update import
 
 @Component({
   selector: 'app-profile',
@@ -52,16 +52,15 @@ export class ProfilePage implements OnInit {
     this.updateProfile();
   }
 
-  updateProfile() {
+  async updateProfile() {
     if (this.profileForm.valid && this.user) {
-      const updatedUser = {
+      const updatedUser: User = {
         ...this.user,
         name: this.profileForm.get('name')?.value || this.user.name,
         email: this.profileForm.get('email')?.value || this.user.email,
         phoneNumber: this.profileForm.get('phoneNumber')?.value || this.user.phoneNumber,
-      } as User;
+      };
 
-      // Only add address if it's not an empty string
       const addressValue = this.profileForm.get('address')?.value;
       if (addressValue) {
         (updatedUser as any).address = addressValue;
@@ -92,7 +91,6 @@ export class ProfilePage implements OnInit {
   }
 
   changeProfilePicture() {
-    // TODO: Implement profile picture change functionality
     this.presentToast('Cambio de foto de perfil próximamente', 'secondary');
   }
 

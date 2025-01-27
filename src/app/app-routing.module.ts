@@ -57,7 +57,7 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'products/:id',
+    path: 'product-detail/:id',
     loadComponent: () => import('./pages/product-detail/product-detail.page').then(m => m.ProductDetailPage),
     canActivate: [AuthGuard]
   },

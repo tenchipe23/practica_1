@@ -1,16 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../models/user.model';
+import { AlertController, ToastController, NavController, ActionSheetController, ModalController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { 
-  NavController, 
-  AlertController, 
-  ModalController, 
-  ActionSheetController 
-} from '@ionic/angular';
-import { AuthService } from '../../services/auth.service';
-import { User } from '../../models';
 
 interface AppSettings {
   darkMode: boolean;
@@ -66,16 +62,16 @@ export class SettingsPage implements OnInit {
     private formBuilder: FormBuilder,
     private alertController: AlertController,
     private actionSheetController: ActionSheetController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private toastController: ToastController,
+    private router: Router
   ) {
-    // Password change form
     this.passwordForm = this.formBuilder.group({
       currentPassword: ['', [Validators.required, Validators.minLength(6)]],
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
     }, { validator: this.passwordMatchValidator });
 
-    // Default settings
     this.settings = {
       darkMode: false,
       notifications: {
@@ -87,24 +83,21 @@ export class SettingsPage implements OnInit {
       currency: 'USD'
     };
 
-    // Load saved settings
     this.loadSettings();
   }
 
   ngOnInit() {
-    // Añade un log para verificar
-    console.log('Intentando obtener usuario actual');
-    this.user = this.authService.getCurrentUser();
-    console.log('Usuario obtenido:', this.user);
-  
-    if (!this.user) {
-      console.warn('No se encontró usuario actual');
-      // Redirigir al login si no hay usuario
-      this.navCtrl.navigateRoot('/login');
+    try {
+      this.user = this.authService.getCurrentUser();
+      if (!this.user) {
+        this.presentToast('Usuario no obtenido', 'danger');
+        this.navCtrl.navigateRoot('/login');
+      }
+    } catch (error) {
+      this.presentToast('No se encontró usuario', 'danger');
     }
   }
 
-  // Custom validator to ensure password match
   passwordMatchValidator(form: FormGroup) {
     const newPassword = form.get('newPassword');
     const confirmPassword = form.get('confirmPassword');
@@ -115,95 +108,28 @@ export class SettingsPage implements OnInit {
       : { passwordMismatch: true };
   }
 
-  // Change password
   async changePassword() {
     if (this.passwordForm.valid) {
       try {
-        await this.authService.changePassword(
+        const result = await this.authService.changePassword(
           this.passwordForm.get('currentPassword')?.value,
           this.passwordForm.get('newPassword')?.value
         );
-
-        const alert = await this.alertController.create({
-          header: 'Contraseña Actualizada',
-          message: 'Tu contraseña ha sido cambiada exitosamente.',
-          buttons: ['OK']
-        });
-        await alert.present();
-
-        // Reset form
-        this.passwordForm.reset();
-      } catch (error: any) {
-        const alert = await this.alertController.create({
-          header: 'Error',
-          message: error.message || 'No se pudo cambiar la contraseña.',
-          buttons: ['OK']
-        });
-        await alert.present();
+        
+        if (result) {
+          this.presentToast('Contraseña Actualizada', 'success');
+          this.passwordForm.reset();
+        } else {
+          this.presentToast('No se pudo cambiar la contraseña', 'danger');
+        }
+      } catch (error) {
+        this.presentToast('Error al cambiar la contraseña', 'danger');
       }
+    } else {
+      this.presentToast('Por favor complete todos los campos', 'danger');
     }
   }
 
-  // Toggle dark mode
-  toggleDarkMode() {
-    this.settings.darkMode = !this.settings.darkMode;
-    document.body.classList.toggle('dark', this.settings.darkMode);
-    this.saveSettings();
-  }
-
-  // Toggle notifications
-  toggleNotification(type: keyof AppSettings['notifications']) {
-    this.settings.notifications[type] = !this.settings.notifications[type];
-    this.saveSettings();
-  }
-
-  // Open language selection
-  async openLanguageSelection() {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Seleccionar Idioma',
-      buttons: this.languages.map(lang => ({
-        text: lang.name,
-        handler: () => {
-          this.settings.language = lang.code;
-          this.saveSettings();
-        }
-      }))
-    });
-    await actionSheet.present();
-  }
-
-  // Open currency selection
-  async openCurrencySelection() {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Seleccionar Moneda',
-      buttons: this.currencies.map(currency => ({
-        text: currency.name,
-        handler: () => {
-          this.settings.currency = currency.code;
-          this.saveSettings();
-        }
-      }))
-    });
-    await actionSheet.present();
-  }
-
-  // Save settings to local storage
-  private saveSettings() {
-    localStorage.setItem('app_settings', JSON.stringify(this.settings));
-  }
-
-  // Load settings from local storage
-  private loadSettings() {
-    const savedSettings = localStorage.getItem('app_settings');
-    if (savedSettings) {
-      this.settings = JSON.parse(savedSettings);
-      
-      // Apply dark mode
-      document.body.classList.toggle('dark', this.settings.darkMode);
-    }
-  }
-
-  // Delete account
   async deleteAccount() {
     const alert = await this.alertController.create({
       header: 'Eliminar Cuenta',
@@ -219,14 +145,9 @@ export class SettingsPage implements OnInit {
           handler: async () => {
             try {
               await this.authService.deleteAccount();
-              this.navCtrl.navigateRoot('/login');
+              this.router.navigate(['/login'], { replaceUrl: true });
             } catch (error: any) {
-              const errorAlert = await this.alertController.create({
-                header: 'Error',
-                message: error.message || 'No se pudo eliminar la cuenta.',
-                buttons: ['OK']
-              });
-              await errorAlert.present();
+              this.presentToast('No se pudo eliminar la cuenta', 'danger');
             }
           }
         }
@@ -235,12 +156,103 @@ export class SettingsPage implements OnInit {
     await alert.present();
   }
 
-  // Navigation
+  async confirmDeleteAccount() {
+    const alert = await this.alertController.create({
+      header: 'Eliminar Cuenta',
+      message: '¿Estás seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer.',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Eliminar',
+          handler: async () => {
+            try {
+              const result = await this.authService.deleteAccount();
+              
+              if (result) {
+                this.presentToast('Cuenta eliminada', 'secondary');
+                this.router.navigate(['/login'], { replaceUrl: true });
+              } else {
+                this.presentToast('No se pudo eliminar la cuenta', 'danger');
+              }
+            } catch (error) {
+              this.presentToast('Error al eliminar la cuenta', 'danger');
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  toggleDarkMode() {
+    this.settings.darkMode = !this.settings.darkMode;
+    document.body.classList.toggle('dark', this.settings.darkMode);
+    this.saveSettings();
+  }
+
+  toggleNotification(type: keyof AppSettings['notifications']) {
+    this.settings.notifications[type] = !this.settings.notifications[type];
+    this.saveSettings();
+  }
+
+  async openLanguageSelection() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Seleccionar Idioma',
+      buttons: this.languages.map(lang => ({
+        text: lang.name,
+        handler: () => {
+          this.settings.language = lang.code;
+          this.saveSettings();
+        }
+      }))
+    });
+    await actionSheet.present();
+  }
+
+  async openCurrencySelection() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Seleccionar Moneda',
+      buttons: this.currencies.map(currency => ({
+        text: currency.name,
+        handler: () => {
+          this.settings.currency = currency.code;
+          this.saveSettings();
+        }
+      }))
+    });
+    await actionSheet.present();
+  }
+
+  private saveSettings() {
+    localStorage.setItem('app_settings', JSON.stringify(this.settings));
+  }
+
+  private loadSettings() {
+    const savedSettings = localStorage.getItem('app_settings');
+    if (savedSettings) {
+      this.settings = JSON.parse(savedSettings);
+      document.body.classList.toggle('dark', this.settings.darkMode);
+    }
+  }
+
+  private async presentToast(message: string, color: 'success' | 'danger' | 'secondary' = 'danger') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'top'
+    });
+    toast.present();
+  }
+
   navigateBack() {
     this.navCtrl.back();
   }
 
-  // Helper methods for template
   getLanguageName(code: string | undefined): string {
     return this.languages.find(lang => lang.code === code)?.name || '';
   }

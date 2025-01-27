@@ -26,7 +26,6 @@ export class ContactPage implements OnInit {
 
   async onSubmit() {
     if (this.contactForm.valid) {
-      // Simula envío de mensaje
       const toast = await this.toastController.create({
         message: 'Mensaje enviado correctamente',
         duration: 2000,

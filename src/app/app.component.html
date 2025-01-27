@@ -1,6 +1,6 @@
 <ion-app>
   <!-- Menú lateral -->
-  <ion-menu side="start" content-id="main-content">
+  <ion-menu *ngIf="showMenus" side="start" content-id="main-content">
     <ion-header>
       <ion-toolbar color="primary">
         <ion-buttons slot="start">
@@ -29,7 +29,7 @@
   <ion-router-outlet id="main-content"></ion-router-outlet>
 
   <!-- Menú inferior -->
-  <ion-tabs>
+  <ion-tabs *ngIf="showMenus">
     <ion-tab-bar slot="bottom">
       <ion-tab-button 
         *ngFor="let item of menuService.bottomMenuItems" 
@@ -39,5 +39,4 @@
       </ion-tab-button>
     </ion-tab-bar>
   </ion-tabs>
-
 </ion-app>

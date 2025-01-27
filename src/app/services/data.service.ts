@@ -17,7 +17,6 @@ import {
 export class DataService {
   constructor() {}
 
-  // Static Users
   private users: User[] = [
     {
       id: '1',
@@ -46,7 +45,12 @@ export class DataService {
     }
   ];
 
-  // Static Products
+  private categories: string[] = [
+    'Electronics',
+    'Audio',
+    'Computers'
+  ];
+
   private products: Product[] = [
     {
       id: 1,
@@ -81,26 +85,6 @@ export class DataService {
     }
   ];
 
-  // Static Categories
-  private categories: Category[] = [
-    {
-      id: 1,
-      name: 'Electronics',
-      icon: 'laptop'
-    },
-    {
-      id: 2,
-      name: 'Audio',
-      icon: 'shirt'
-    },
-    {
-      id: 3,
-      name: 'Computers',
-      icon: 'book'
-    }
-  ];
-
-  // Static Orders
   private orders: Order[] = [
     {
       id: 'order1',
@@ -166,7 +150,6 @@ export class DataService {
     }
   ];
 
-  // Static Promotions
   private promotions: Promotion[] = this.generateSamplePromotions();
 
   getProducts(): Product[] {
@@ -177,7 +160,7 @@ export class DataService {
     return this.getProducts().find(product => product.id === id) || null;
   }
 
-  getCategories(): Category[] {
+  getCategories(): string[] {
     return this.categories;
   }
 

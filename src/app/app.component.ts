@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
-import { Router } from '@angular/router';
-import { MenuService } from './services/menu.service'; // Importa MenuService
+import { Router, NavigationEnd } from '@angular/router';
+import { MenuService } from './services/menu.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -10,26 +11,46 @@ import { MenuService } from './services/menu.service'; // Importa MenuService
   standalone: false
 })
 export class AppComponent implements OnInit {
+  private currentRoute: string = '';
+  showMenus: boolean = false;
+
   constructor(
     private authService: AuthService,
     private router: Router,
     public menuService: MenuService 
   ) {
-    console.log('AppComponent constructor called');
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.currentRoute = event.urlAfterRedirects || event.url;
+      
+      this.showMenus = !this.isMenuHidden();
+
+      this.performAuthCheck();
+    });
   }
 
   ngOnInit() {
-    console.log('AppComponent ngOnInit called');
+    this.performAuthCheck();
+  }
+
+  private performAuthCheck() {
     const user = this.authService.getCurrentUser();
-    
-    console.log('Current user:', user);
-    
+    const isLoginOrRegisterRoute = this.isMenuHidden();
+
     if (user) {
-      console.log('Navigating to home');
-      this.router.navigate(['/home']);
+      if (isLoginOrRegisterRoute) {
+        this.router.navigate(['/home'], { replaceUrl: true });
+      }
     } else {
-      console.log('Navigating to login');
-      this.router.navigate(['/login']);
+      if (!isLoginOrRegisterRoute) {
+        this.router.navigate(['/login'], { replaceUrl: true });
+      }
     }
+  }
+
+  isMenuHidden(): boolean {
+    const hiddenRoutes = ['/login', '/register'];
+    return hiddenRoutes.some(route => this.currentRoute.startsWith(route));
   }
 }

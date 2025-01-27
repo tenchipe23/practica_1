@@ -27,7 +27,7 @@ export class LoginPage implements OnInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute, // Añade ActivatedRoute
+    private route: ActivatedRoute, 
     private toastController: ToastController,
     private alertController: AlertController
   ) {
@@ -39,7 +39,6 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
-    // Obtiene la URL de retorno de los parámetros de consulta
     this.route.queryParams.subscribe(params => {
       this.returnUrl = params['returnUrl'] || '/home';
     });
@@ -57,7 +56,6 @@ export class LoginPage implements OnInit {
       next: (success) => {
         if (success) {
           console.log('Login successful');
-          // Navega a la URL de retorno
           this.router.navigate([this.returnUrl], { replaceUrl: true });
         } else {
           console.log('Login failed');
@@ -72,12 +70,10 @@ export class LoginPage implements OnInit {
   }
 
   onForgotPassword() {
-    // Usa Router para navegar
     this.router.navigate(['/forgot-password'], { replaceUrl: true });
   }
 
   onRegister() {
-    // Usa Router para navegar
     this.router.navigate(['/register'], { replaceUrl: true });
   }
 

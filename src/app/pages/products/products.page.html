@@ -6,30 +6,76 @@
       </ion-button>
     </ion-buttons>
     <ion-title>Productos</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="openFilterModal()">
-        <ion-icon name="filter"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <!-- Categories Filter -->
-  <div class="categories-filter">
-    <ion-chip 
-      *ngFor="let category of categories" 
-      [color]="selectedCategory === category.name ? 'primary' : 'medium'"
-      (click)="onCategorySelect(category.name)">
-      <ion-icon [name]="category.icon"></ion-icon>
-      <ion-label>{{ category.name }}</ion-label>
-    </ion-chip>
+  <!-- Categories Dropdown -->
+  <div class="categories-dropdown-container">
+    <div 
+      class="categories-dropdown-header" 
+      (click)="toggleCategoriesDropdown()"
+    >
+      <span class="selected-category">
+        Categoría: {{ 
+          selectedCategory === 'todos' 
+            ? 'Todos' 
+            : (selectedCategory || 'Todos') 
+        }}
+      </span>
+      <ion-icon 
+        class="dropdown-icon"
+        [name]="isCategoriesDropdownOpen ? 'chevron-up-outline' : 'chevron-down-outline'"
+      ></ion-icon>
+    </div>
+
+    <div 
+      class="categories-dropdown-menu" 
+      [class.open]="isCategoriesDropdownOpen"
+    >
+      <div 
+        *ngFor="let category of categories" 
+        class="category-dropdown-item"
+        [class.active]="isCategoryActive(category)"
+        (click)="onCategorySelect(category); toggleCategoriesDropdown()"
+      >
+        <div class="category-content">
+          <ion-icon 
+            [name]="getCategoryIcon(category.name)"
+            class="category-icon"
+          ></ion-icon>
+          <div class="category-details">
+            <span class="category-name">{{ 
+              category.name === 'Todos' 
+                ? 'Todos' 
+                : (category.name || 'Sin Categoría') 
+            }}</span>
+            <span class="product-count">({{ category.productCount }} productos)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading.products || loading.categories" class="ion-text-center ion-padding">
+    <ion-spinner color="primary"></ion-spinner>
+    <p>Cargando productos...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="ion-text-center ion-padding">
+    <ion-icon name="alert-circle" color="danger"></ion-icon>
+    <p>{{ error }}</p>
+    <ion-button (click)="loadProducts()" color="primary">
+      Reintentar
+    </ion-button>
   </div>
 
   <!-- Products Grid -->
   <div class="products-grid">
     <div 
-      *ngFor="let product of filteredProducts" 
+      *ngFor="let product of products" 
       class="product-card"
       (click)="navigateToProductDetail(product.id)">
       <div class="product-image-container">
@@ -71,7 +117,7 @@
 
   <!-- Empty State -->
   <div 
-    *ngIf="filteredProducts.length === 0" 
+    *ngIf="products.length === 0" 
     class="empty-state">
     <ion-icon name="cube-outline"></ion-icon>
     <h3>No hay productos</h3>

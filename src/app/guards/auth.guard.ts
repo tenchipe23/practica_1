@@ -5,9 +5,8 @@ import {
   RouterStateSnapshot, 
   Router 
 } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { take, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -22,28 +21,22 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> {
-    console.log('AuthGuard: Checking authentication');
+    const isAuthenticated = this.authService.isAuthenticated();
     
-    return this.authService.currentUser$.pipe(
-      take(1), // Toma solo el primer valor
-      map(user => {
-        const isAuthenticated = !!user;
-        
-        console.log('Is authenticated:', isAuthenticated);
-        
-        if (!isAuthenticated) {
-          console.log('Redirecting to login');
-          // Guarda la URL a la que intentaba acceder
-          this.router.navigate(['/login'], {
-            queryParams: { 
-              returnUrl: state.url 
-            }
-          });
-          return false;
+    console.log('AuthGuard: Checking authentication', {
+      isAuthenticated,
+      requestedUrl: state.url
+    });
+
+    if (!isAuthenticated) {
+      this.router.navigate(['/login'], {
+        queryParams: { 
+          returnUrl: state.url 
         }
-        
-        return true;
-      })
-    );
+      });
+      return of(false);
+    }
+    
+    return of(true);
   }
 }
